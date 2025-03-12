@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassRoom.DataAccess\ClassRoom.DataAccess.csproj" />
+    <ProjectReference Include="..\ClassRoom.Utility\ClassRoom.Utility.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,10 @@
-﻿using ClassRoom.Models.ViewModels;
-using ClassRoom.Models;
+﻿using ClassRoom.Models;
+using ClassRoom.Models.ViewModels;
+using ClassRoom.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ClassRoom.Web.Controllers
 {
@@ -9,29 +12,58 @@ namespace ClassRoom.Web.Controllers
 	{
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly SignInManager<ApplicationUser> _signInManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
+
 
 		public AccountController(
 			UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager)
+			SignInManager<ApplicationUser> signInManager,
+			RoleManager<IdentityRole> roleManager)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
+			_roleManager = roleManager;
 		}
 
 		// GET: Account/Register
-		public IActionResult Register(string returnurl = null)
+		public async Task<IActionResult> Register(string returnurl = null)
 		{
+			if (!_roleManager.RoleExistsAsync(SD.Admin).GetAwaiter().GetResult())
+			{
+				await _roleManager.CreateAsync(new IdentityRole(SD.Admin));
+				await _roleManager.CreateAsync(new IdentityRole(SD.Instructor));
+				await _roleManager.CreateAsync(new IdentityRole(SD.Student));
+			}
+
+			List<SelectListItem> listItems = new();
+			listItems.Add(new SelectListItem()
+			{
+				Value = SD.Instructor,
+				Text = SD.Instructor
+			});
+			listItems.Add(new SelectListItem()
+			{
+				Value = SD.Student,
+				Text = SD.Student
+			});
+
 			ViewData["ReturnUrl"] = returnurl;
-			return View();
+
+			RegisterVM registerVM = new()
+			{
+				RoleList = listItems
+			};
+
+			return View(registerVM);
 		}
 
 		// POST: Account/Register
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Register(
-			[Bind("LastName,FirstMidName,Email,Password,ConfirmPassword")] RegisterVM registerVM,
+		public async Task<IActionResult> Register(RegisterVM registerVM,
 			string returnurl = null)
 		{
+
 			ViewData["ReturnUrl"] = returnurl;
 			returnurl = returnurl ?? Url.Content("~/");
 			if (ModelState.IsValid)
@@ -47,6 +79,14 @@ namespace ClassRoom.Web.Controllers
 				var result = await _userManager.CreateAsync(user, registerVM.Password);
 				if (result.Succeeded)
 				{
+					if (registerVM.RoleSelected != null && registerVM.RoleSelected.Length > 0 && registerVM.RoleSelected == SD.Instructor)
+					{
+						await _userManager.AddToRoleAsync(user, SD.Instructor);
+					}
+					else
+					{
+						await _userManager.AddToRoleAsync(user, SD.Student);
+					}
 					await _signInManager.SignInAsync(user, isPersistent: false);
 					return LocalRedirect(returnurl);
 				}
@@ -56,6 +96,18 @@ namespace ClassRoom.Web.Controllers
 					ModelState.AddModelError(string.Empty, error.Description);
 				}
 			}
+			List<SelectListItem> listItems = new();
+			listItems.Add(new SelectListItem()
+			{
+				Value = SD.Instructor,
+				Text = SD.Instructor
+			});
+			listItems.Add(new SelectListItem()
+			{
+				Value = SD.Student,
+				Text = SD.Student
+			});
+			registerVM.RoleList = listItems;
 			return View(registerVM);
 		}
 
@@ -98,5 +150,13 @@ namespace ClassRoom.Web.Controllers
 			await _signInManager.SignOutAsync();
 			return RedirectToAction("Index", "Home");
 		}
+
+		[HttpGet]
+		[AllowAnonymous]
+		public IActionResult NoAccess()
+		{
+			return View();
+		}
+
 	}
 }
