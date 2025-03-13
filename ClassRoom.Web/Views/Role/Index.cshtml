@@ -1,0 +1,32 @@
+﻿@model List<Microsoft.AspNetCore.Identity.IdentityRole>
+
+<h2>Role Management</h2>
+
+<a asp-action="Create" class="btn btn-success">Create New Role</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Role Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var role = Model[i];
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@role.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-warning btn-sm">Edit</a>
+                    
+                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

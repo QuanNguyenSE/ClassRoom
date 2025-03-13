@@ -1,0 +1,42 @@
+﻿@model List<Course>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+<form method="get">
+    <input type="text" name="search" placeholder="Tìm kiếm khóa học..." />
+    <label>
+        <input type="checkbox" name="showRegistered" value="true" /> Chỉ hiển thị khóa học đã đăng ký
+    </label>
+    <button type="submit">Tìm kiếm</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Ảnh</th>
+            <th>Tên khóa học</th>
+            <th>Thời lượng</th>
+            <th>Trình độ</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <img src="@course.ImageUrl" alt="Ảnh khóa học" width="100" />
+                <td>@course.Title</td>
+                <td>@course.Duration giờ</td>
+                <td>@course.Level</td>
+                <td>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form method="post" asp-action="Register" asp-route-courseId="@course.Id">
+                            <button type="submit">Đăng ký</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

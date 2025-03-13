@@ -4,6 +4,7 @@ using ClassRoom.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassRoom.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313091234_AddClassroom")]
+    partial class AddClassroom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,23 +65,18 @@ namespace ClassRoom.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("Duration")
+                    b.Property<int>("MinStudentToOpenClass")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -326,9 +324,6 @@ namespace ClassRoom.DataAccess.Migrations
                     b.Property<int?>("ClassroomId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("EnrollmentDate")
                         .HasColumnType("datetime2");
 
@@ -347,8 +342,6 @@ namespace ClassRoom.DataAccess.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasIndex("ClassroomId");
-
-                    b.HasIndex("CourseId");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
@@ -375,7 +368,7 @@ namespace ClassRoom.DataAccess.Migrations
             modelBuilder.Entity("ClassRoom.Models.Enrollment", b =>
                 {
                     b.HasOne("ClassRoom.Models.Course", "Course")
-                        .WithMany()
+                        .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -447,10 +440,6 @@ namespace ClassRoom.DataAccess.Migrations
                     b.HasOne("ClassRoom.Models.Classroom", null)
                         .WithMany("Students")
                         .HasForeignKey("ClassroomId");
-
-                    b.HasOne("ClassRoom.Models.Course", null)
-                        .WithMany("Students")
-                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("ClassRoom.Models.Classroom", b =>
@@ -460,7 +449,7 @@ namespace ClassRoom.DataAccess.Migrations
 
             modelBuilder.Entity("ClassRoom.Models.Course", b =>
                 {
-                    b.Navigation("Students");
+                    b.Navigation("Enrollments");
                 });
 #pragma warning restore 612, 618
         }

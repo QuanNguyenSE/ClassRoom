@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClassRoom.Models;
 
@@ -22,7 +22,7 @@ public class ApplicationUser : IdentityUser
 	{
 		get
 		{
-			return LastName + ", " + FirstMidName;
+			return LastName + " " + FirstMidName;
 		}
 	}
 
@@ -42,4 +42,5 @@ public class ApplicationUser : IdentityUser
 
 	//public ICollection<CourseAssignment>? CourseAssignments { get; set; }
 	//public OfficeAssignment? OfficeAssignment { get; set; }
+
 }

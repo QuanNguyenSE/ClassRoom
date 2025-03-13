@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - ClassRoom.Web</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/ClassRoom.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -25,6 +26,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Course" asp-action="Index">Course</a>
+                        </li>
+
+                        @* @if (User.IsInRole("Admin")) *@
+                        @* { *@
+                        @*     <li class="nav-item"> *@
+                        @*         <a class="nav-link" asp-controller="Role" asp-action="Index">Manage Roles</a> *@
+                        @*     </li> *@
+                        @*     <li class="nav-item"> *@
+                        @*         <a class="nav-link" asp-controller="User" asp-action="Index">Manage Users</a> *@
+                        @*     </li> *@
+                        @* } *@
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -33,6 +47,7 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            <partial name="_Notification" />
             @RenderBody()
         </main>
     </div>

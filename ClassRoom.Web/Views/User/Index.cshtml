@@ -1,1 +1,35 @@
-﻿
+﻿@model List<UserWithRolesVM>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th> <!-- Cột số thứ tự -->
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Enrollment Date</th>
+            <th>Hire Date</th>
+            <th>Roles</th>
+            <th>Actions</th> <!-- Cột chứa nút Edit & Delete -->
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var userVM = Model[i];
+            <tr>
+                <td>@(i + 1)</td> <!-- Hiển thị số thứ tự -->
+                <td>@userVM.User.UserName</td>
+                <td>@userVM.User.FullName</td>
+                <td>@userVM.User.Email</td>
+                <td>@(userVM.User.EnrollmentDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                <td>@(userVM.User.HireDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                <td>@string.Join(", ", userVM.Roles)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@userVM.User.Id" class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@userVM.User.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
