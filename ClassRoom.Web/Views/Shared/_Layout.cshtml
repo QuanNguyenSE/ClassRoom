@@ -108,7 +108,7 @@
                                 <a class="nav-item nav-link active" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                                 <a class="nav-item nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                                 <a class="nav-item nav-link" asp-area="" asp-controller="Course" asp-action="Index">Course</a>
-
+                                <a class="nav-item nav-link" asp-area="" asp-controller="Classroom" asp-action="Index">Classroom</a>
 
                                 @if (User.IsInRole("Admin"))
                                 {
@@ -131,10 +131,12 @@
 
 
     </header>
-
-    <partial name="_Notification" />
-    @RenderBody()
-
+    <div class="container">
+        <main role="main" class="pb-3">
+            <partial name="_Notification" />
+            @RenderBody()
+        </main>
+    </div>
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white py-5 px-sm-3 px-lg-5" style="margin-top: 90px;">
         <div class="row pt-5">

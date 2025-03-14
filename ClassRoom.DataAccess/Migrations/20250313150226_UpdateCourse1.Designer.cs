@@ -4,6 +4,7 @@ using ClassRoom.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassRoom.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313150226_UpdateCourse1")]
+    partial class UpdateCourse1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -329,6 +332,9 @@ namespace ClassRoom.DataAccess.Migrations
                     b.Property<int?>("ClassroomId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("EnrollmentDate")
                         .HasColumnType("datetime2");
 
@@ -347,6 +353,8 @@ namespace ClassRoom.DataAccess.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasIndex("ClassroomId");
+
+                    b.HasIndex("CourseId");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
@@ -373,7 +381,7 @@ namespace ClassRoom.DataAccess.Migrations
             modelBuilder.Entity("ClassRoom.Models.Enrollment", b =>
                 {
                     b.HasOne("ClassRoom.Models.Course", "Course")
-                        .WithMany("Enrollments")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -445,6 +453,10 @@ namespace ClassRoom.DataAccess.Migrations
                     b.HasOne("ClassRoom.Models.Classroom", null)
                         .WithMany("Students")
                         .HasForeignKey("ClassroomId");
+
+                    b.HasOne("ClassRoom.Models.Course", null)
+                        .WithMany("Students")
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("ClassRoom.Models.Classroom", b =>
@@ -454,7 +466,7 @@ namespace ClassRoom.DataAccess.Migrations
 
             modelBuilder.Entity("ClassRoom.Models.Course", b =>
                 {
-                    b.Navigation("Enrollments");
+                    b.Navigation("Students");
                 });
 #pragma warning restore 612, 618
         }

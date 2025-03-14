@@ -25,9 +25,10 @@ public class Course
 	public CourseLevel Level { get; set; }
 	[ValidateNever]
 	public string ImageUrl { get; set; }
+	public int MinStudentToOpenClass { get; set; } = 15;
 
 	public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-	public List<ApplicationUser> Students { get; set; } = new();
+	public List<Enrollment>? Enrollments { get; set; }
 }
 

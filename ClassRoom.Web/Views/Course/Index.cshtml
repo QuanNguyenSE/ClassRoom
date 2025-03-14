@@ -1,42 +1,49 @@
-﻿@model List<Course>
-@using Microsoft.AspNetCore.Identity
-@inject UserManager<ApplicationUser> UserManager
+﻿@model List<CourseVM>
 
-<form method="get">
-    <input type="text" name="search" placeholder="Tìm kiếm khóa học..." />
-    <label>
-        <input type="checkbox" name="showRegistered" value="true" /> Chỉ hiển thị khóa học đã đăng ký
-    </label>
-    <button type="submit">Tìm kiếm</button>
+@{
+    ViewData["Title"] = "Danh sách khóa học";
+}
+
+<h2>Danh sách khóa học</h2>
+
+<!-- Form tìm kiếm -->
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="searchTerm" class="form-control" placeholder="Tìm kiếm khóa học..." value="@Context.Request.Query["searchTerm"]" />
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+    </div>
 </form>
-
-<table>
-    <thead>
-        <tr>
-            <th>Ảnh</th>
-            <th>Tên khóa học</th>
-            <th>Thời lượng</th>
-            <th>Trình độ</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in Model)
-        {
-            <tr>
-                <img src="@course.ImageUrl" alt="Ảnh khóa học" width="100" />
-                <td>@course.Title</td>
-                <td>@course.Duration giờ</td>
-                <td>@course.Level</td>
-                <td>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <form method="post" asp-action="Register" asp-route-courseId="@course.Id">
-                            <button type="submit">Đăng ký</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<!-- Courses Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h5 class="text-primary text-uppercase mb-3" style="letter-spacing: 5px;">Courses</h5>
+            <h1>Our Popular Courses</h1>
+        </div>
+        <div class="row">
+            @foreach (var course in Model)
+            {
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="rounded overflow-hidden mb-2">
+                        <a asp-controller="Course" asp-action="Detail" asp-route-id="@course.Id"></a>
+                        <img class="img-fluid" src="@course.ImageUrl" alt="">
+                        <div class="bg-secondary p-4">
+                            <div class="d-flex justify-content-between mb-3">
+                                <small class="m-0"><i class="fa fa-users text-primary mr-2"></i>@course.StudentCount Students</small>
+                                <small class="m-0"><i class="far fa-clock text-primary mr-2"></i>@course.Duration h</small>
+                            </div>
+                            <a class="h5" asp-controller="Course" asp-action="Details" asp-route-id="@course.Id">@course.Title</a>
+                            <div class="border-top mt-4 pt-4">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="m-0"><i class="fa fa-star text-primary mr-2"></i>4.5 <small>(250)</small></h6>
+                                    <h6 class="m-0">@course.CreatedAt.ToString("dd/MM/yyyy")</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<!-- Courses End -->
