@@ -1,12 +1,8 @@
-﻿@model ClassRoom.Models.Course
-
-@{
-    ViewData["Title"] = "Tạo khóa học";
-}
+﻿@model CourseCreateViewModel
 
 <h2>Tạo khóa học mới</h2>
 
-<form asp-action="Create" enctype="multipart/form-data">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="Title"></label>
         <input asp-for="Title" class="form-control" />
@@ -14,36 +10,25 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="Duration">Thời lượng (giờ/tuần)</label>
-        <input asp-for="Duration" type="number" class="form-control" />
-        <span asp-validation-for="Duration" class="text-danger"></span>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
     </div>
 
     <div class="form-group">
-        <label asp-for="Level">Trình độ</label>
-        <select asp-for="Level" class="form-control">
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-        </select>
-        <span asp-validation-for="Level" class="text-danger"></span>
+        <label asp-for="Level"></label>
+        <select asp-for="Level" asp-items="Html.GetEnumSelectList<CourseLevel>()" class="form-control"></select>
     </div>
 
     <div class="form-group">
-        <label asp-for="MinStudentToOpenClass">Số học viên tối thiểu để mở lớp</label>
+        <label asp-for="MinStudentToOpenClass"></label>
         <input asp-for="MinStudentToOpenClass" type="number" class="form-control" />
         <span asp-validation-for="MinStudentToOpenClass" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="file">Ảnh khóa học</label>
-        <input type="file" name="file" class="form-control" />
+        <label>Ảnh khóa học</label>
+        <input type="file" name="image" class="form-control" required />
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Tạo khóa học</button>
-    <a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>
+    <button type="submit" class="btn btn-primary">Tạo khóa học</button>
 </form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

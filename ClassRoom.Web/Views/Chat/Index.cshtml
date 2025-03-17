@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Chat Room";
+}
+
+<h2>Chat Room</h2>
+
+<label for="room">Chọn phòng chat:</label>
+<select id="room" class="form-select">
+    <option value="Room1">Room 1</option>
+    <option value="Room2">Room 2</option>
+</select>
+
+<div class="chat-box">
+    <ul id="messagesList"></ul>
+</div>
+
+<input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn..." />
+<button id="sendButton" class="btn btn-primary">Gửi</button>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script>
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+        connection.start().then(function () {
+            console.log("Connected to chat hub.");
+        }).catch(function (err) {
+            console.error(err.toString());
+        });
+
+        document.getElementById("room").addEventListener("change", function () {
+            var roomName = this.value;
+            connection.invoke("JoinRoom", roomName).catch(function (err) {
+                console.error(err.toString());
+            });
+        });
+
+        document.getElementById("sendButton").addEventListener("click", function () {
+            var user = "User"; // Bạn có thể lấy từ session hoặc user login
+            var message = document.getElementById("messageInput").value;
+            var room = document.getElementById("room").value;
+            connection.invoke("SendMessage", room, user, message).catch(function (err) {
+                console.error(err.toString());
+            });
+        });
+
+        connection.on("ReceiveMessage", function (user, message) {
+            var li = document.createElement("li");
+            li.textContent = user + ": " + message;
+            document.getElementById("messagesList").appendChild(li);
+        });
+    </script>
+}

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClassRoom.Models;
 
@@ -9,6 +9,7 @@ public class Classroom
 	public int Id { get; set; }
 	[Required, StringLength(100)]
 	public string Name { get; set; }
+	public string Information { get; set; }
 
 	[Required]
 	public int CourseId { get; set; }

@@ -33,6 +33,8 @@ namespace ClassRoom.Web.Controllers
 				await _roleManager.CreateAsync(new IdentityRole(SD.Admin));
 				await _roleManager.CreateAsync(new IdentityRole(SD.Instructor));
 				await _roleManager.CreateAsync(new IdentityRole(SD.Student));
+				await _roleManager.CreateAsync(new IdentityRole(SD.Staff));
+
 			}
 
 			List<SelectListItem> listItems = new();

@@ -26,21 +26,9 @@ public class ApplicationUser : IdentityUser
 		}
 	}
 
-	// Properties for students
-	[DataType(DataType.Date)]
-	[DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-	[Display(Name = "Enrollment Date")]
-	public DateTime? EnrollmentDate { get; set; }
-
-	//public ICollection<Enrollment>? Enrollments { get; set; }
-
 	// Properties for instructors
 	[DataType(DataType.Date)]
 	[DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 	[Display(Name = "Hire Date")]
 	public DateTime? HireDate { get; set; }
-
-	//public ICollection<CourseAssignment>? CourseAssignments { get; set; }
-	//public OfficeAssignment? OfficeAssignment { get; set; }
-
 }

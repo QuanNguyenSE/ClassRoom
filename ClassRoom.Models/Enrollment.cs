@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClassRoom.Models;
 
@@ -16,6 +16,7 @@ public class Enrollment
 	public int CourseId { get; set; }
 	[ForeignKey("CourseId")]
 	public Course Course { get; set; }
+	public bool IsActive { get; set; } = true;
 
 	public DateTime EnrollmentDate { get; set; } = DateTime.Now;
 }

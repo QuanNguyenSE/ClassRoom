@@ -7,7 +7,6 @@
             <th>Username</th>
             <th>Full Name</th>
             <th>Email</th>
-            <th>Enrollment Date</th>
             <th>Hire Date</th>
             <th>Roles</th>
             <th>Actions</th> <!-- Cột chứa nút Edit & Delete -->
@@ -22,7 +21,6 @@
                 <td>@userVM.User.UserName</td>
                 <td>@userVM.User.FullName</td>
                 <td>@userVM.User.Email</td>
-                <td>@(userVM.User.EnrollmentDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                 <td>@(userVM.User.HireDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                 <td>@string.Join(", ", userVM.Roles)</td>
                 <td>

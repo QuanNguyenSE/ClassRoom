@@ -1,0 +1,63 @@
+﻿@model CourseUpdateViewModel
+
+@{
+    ViewData["Title"] = "Cập nhật khóa học";
+}
+
+<h2 class="mb-4">Cập nhật khóa học</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Update" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Tiêu đề</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Mô tả</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Level" class="form-label">Trình độ</label>
+        <select asp-for="Level" asp-items="Html.GetEnumSelectList<CourseLevel>()" class="form-select"></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MinStudentToOpenClass" class="form-label">Số lượng học viên tối thiểu để mở lớp</label>
+        <input asp-for="MinStudentToOpenClass" class="form-control" type="number" min="1" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh hiện tại</label>
+        <br />
+        @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+        {
+            <img src="@Model.ExistingImageUrl" alt="Course Image" class="img-thumbnail" width="200" />
+        }
+        else
+        {
+            <p class="text-muted">Chưa có ảnh</p>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Image" class="form-label">Tải ảnh mới</label>
+        <input asp-for="Image" class="form-control" type="file" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

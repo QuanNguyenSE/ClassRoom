@@ -1,38 +1,51 @@
-﻿@model CourseVM
+﻿@model CourseDetailsViewModel
 
-@{
-    ViewData["Title"] = "Chi tiết khóa học";
-}
-
-<div class="container">
-    <h2>@Model.Title</h2>
-
+<div class="container mt-4">
     <div class="row">
-        <div class="col-md-6">
-            <img src="@Model.ImageUrl" alt="Course Image" class="img-fluid" />
+        <!-- Ảnh khóa học -->
+        <div class="col-md-5">
+            <img src="@Model.Course.ImageUrl" alt="@Model.Course.Title" class="img-fluid rounded shadow-sm">
         </div>
-        <div class="col-md-6">
-            <p><strong>Thời lượng:</strong> @Model.Duration giờ</p>
-            <p><strong>Trình độ:</strong> @Model.Level</p>
-            <p><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
-            <p><strong>Lượt đăng ký:</strong> @Model.StudentCount học viên</p>
 
-            <form asp-action="Register" method="post">
-                <input type="hidden" name="courseId" value="@Model.Id" />
-                <button type="submit" class="btn btn-primary">Đăng ký khóa học</button>
-            </form>
+        <!-- Thông tin khóa học -->
+        <div class="col-md-7">
+            <h2 class="text-primary">@Model.Course.Title</h2>
+            <p class="text-muted"><i class="fas fa-calendar-alt"></i> Ngày tạo: @Model.Course.CreatedAt.ToString("dd/MM/yyyy")</p>
 
-            <!-- Hiển thị nút Tạo Lớp nếu user có role Staff -->
-            @* @if (User.IsInRole("Staff")) *@
-            @* { *@
-                <form asp-controller="Classroom" asp-action="Create" method="get" class="mt-2">
-                    <input type="hidden" name="courseId" value="@Model.Id" />
-                    <button type="submit" class="btn btn-success">Tạo lớp học</button>
-                </form>
-            @* } *@
-            <!-- Kết thúc phần thêm nút -->
+            <p><strong>Mô tả:</strong> @Model.Course.Description</p>
+            <p><strong>Cấp độ:</strong> <span class="badge bg-info text-dark">@Model.Course.Level</span></p>
+            <p><strong>Số sinh viên đã đăng ký:</strong> <span class="badge bg-warning">@Model.ActiveEnrollments</span></p>
+            <p><strong>Số sinh viên đã học:</strong> <span class="badge bg-success">@Model.CompletedEnrollments</span></p>
+            <p><strong>Học viên tối thiểu để mở lớp:</strong> @Model.Course.MinStudentToOpenClass</p>
 
-            <a asp-action="Index" class="btn btn-secondary mt-2">Quay lại danh sách</a>
+            <!-- Nút thao tác theo role -->
+            <div class="mt-4">
+                @if (Model.UserRole == SD.Student)
+                {
+                    <form asp-action="Enroll" method="post">
+                        <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Đăng ký học
+                        </button>
+                    </form>
+
+                }
+                else if (Model.UserRole == SD.Staff)
+                {
+                    <a href="@Url.Action("CreateClass", "Class", new { courseId = Model.Course.Id })" class="btn btn-success">
+                        <i class="fas fa-chalkboard-teacher"></i> Tạo lớp
+                    </a>
+                }
+                else if (Model.UserRole == "Anonymous")
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i> Hãy <a asp-controller="Account" asp-action="Login">đăng nhập</a> để có thể đăng ký khóa học.
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Bootstrap + FontAwesome (Thêm nếu chưa có) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

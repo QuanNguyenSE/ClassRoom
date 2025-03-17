@@ -1,0 +1,28 @@
+﻿<h2>Real-time Chat</h2>
+<input type="text" id="username" placeholder="Enter your name">
+<input type="text" id="message" placeholder="Enter message">
+<button onclick="sendMessage()">Send</button>
+
+<ul id="messagesList"></ul>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub") // Kết nối tới Hub
+        .build();
+
+    // Khi nhận tin nhắn từ server
+    connection.on("ReceiveMessage", (user, message) => {
+        const li = document.createElement("li");
+        li.textContent = `${user}: ${message}`;
+        document.getElementById("messagesList").appendChild(li);
+    });
+
+    connection.start().catch(err => console.error(err));
+
+    function sendMessage() {
+        const user = document.getElementById("username").value;
+        const message = document.getElementById("message").value;
+        connection.invoke("SendMessage", user, message)
+            .catch(err => console.error(err));
+    }
+</script>

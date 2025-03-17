@@ -11,6 +11,8 @@ namespace ClassRoom.DataAccess.Data
 		public DbSet<Enrollment> Enrollments { get; set; }
 		public DbSet<Classroom> Classrooms { get; set; }
 
+
+
 		public ApplicationDbContext(DbContextOptions options)
 			: base(options)
 		{
@@ -21,6 +23,7 @@ namespace ClassRoom.DataAccess.Data
 			modelBuilder.Entity<Course>().ToTable("Course");
 			modelBuilder.Entity<Enrollment>().ToTable("Enrollment");
 			modelBuilder.Entity<Classroom>().ToTable("Classroom");
+
 
 		}
 	}
