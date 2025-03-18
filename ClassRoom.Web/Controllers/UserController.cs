@@ -1,12 +1,14 @@
 ﻿using ClassRoom.DataAccess.Data;
 using ClassRoom.Models;
 using ClassRoom.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassRoom.Web.Controllers
 {
+	[Authorize(Roles = "Admin")]
 	public class UserController : Controller
 	{
 		private readonly ApplicationDbContext _db;

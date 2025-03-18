@@ -2,6 +2,7 @@
 using ClassRoom.Models.ViewModels;
 using ClassRoom.Web.Services;
 using ClassRoom.Web.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,12 +28,15 @@ namespace ClassRoom.Web.Controllers
 			return View(courses);
 		}
 		[HttpGet]
+		[Authorize(Roles = "Staff")]
 		public IActionResult Create()
 		{
 			return View();
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Staff")]
+
 		public async Task<IActionResult> Create(CourseCreateViewModel model, IFormFile image)
 		{
 			if (!ModelState.IsValid)
@@ -60,6 +64,7 @@ namespace ClassRoom.Web.Controllers
 
 			return View(viewModel);
 		}
+		[Authorize(Roles = "Staff")]
 		public async Task<IActionResult> Update(int id)
 		{
 			var course = await _courseService.GetCourseForUpdateAsync(id);
@@ -69,6 +74,8 @@ namespace ClassRoom.Web.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Staff")]
+
 		public async Task<IActionResult> Update(CourseUpdateViewModel model)
 		{
 			if (!ModelState.IsValid) return View(model);
@@ -84,6 +91,8 @@ namespace ClassRoom.Web.Controllers
 			TempData["Error"] = "Có lỗi xảy ra khi cập nhật khóa học.";
 			return View(model);
 		}
+		[Authorize(Roles = "Staff")]
+
 		public async Task<IActionResult> Delete(int id)
 		{
 			var course = await _courseService.GetCourseForDeleteAsync(id);
@@ -93,6 +102,8 @@ namespace ClassRoom.Web.Controllers
 		}
 
 		[HttpPost, ActionName("Delete")]
+		[Authorize(Roles = "Staff")]
+
 		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
 			var isDeleted = await _courseService.DeleteCourseAsync(id);
@@ -108,6 +119,8 @@ namespace ClassRoom.Web.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Student")]
+
 		public async Task<IActionResult> Enroll(int courseId)
 		{
 			var user = await _userManager.GetUserAsync(User);

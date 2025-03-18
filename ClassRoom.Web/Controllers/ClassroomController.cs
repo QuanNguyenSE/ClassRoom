@@ -1,242 +1,156 @@
-﻿using ClassRoom.DataAccess.Data;
-using ClassRoom.Models;
+﻿using ClassRoom.Models;
 using ClassRoom.Models.ViewModels;
-using Microsoft.AspNetCore.Identity;
+using ClassRoom.Utility;
+using ClassRoom.Web.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ClassRoom.Web.Controllers
 {
+	[Authorize]
 	public class ClassroomController : Controller
 	{
-		private readonly ApplicationDbContext _db;
-		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly IAssignmentService _assignmentService;
+		private readonly IClassroomService _classroomService;
 
-		public ClassroomController(ApplicationDbContext context,
-			UserManager<ApplicationUser> userManager)
+		public ClassroomController(IAssignmentService assignmentService, IClassroomService classroomService)
 		{
-			_db = context;
-			_userManager = userManager;
+			_assignmentService = assignmentService;
+			_classroomService = classroomService;
 		}
 
-		// GET: Classroom
+		[HttpGet]
 		public async Task<IActionResult> Index()
 		{
-			var classrooms = await _db.Classrooms
-				.Include(c => c.Course)
-				.Include(c => c.Instructor)
-				.ToListAsync();
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
 
-			return View(classrooms);
-		}
+			List<Classroom> classrooms = new();
 
-		// GET: Classroom/Details/5
-		public async Task<IActionResult> Details(int? id)
-		{
-			if (id == null)
+			if (userRoles.Contains("Staff"))
 			{
-				return NotFound();
+				classrooms = await _classroomService.GetAllClassroomsForStaffAsync();
+				return View("Index_Staff", classrooms);
+			}
+			else if (userRoles.Contains("Instructor"))
+			{
+				classrooms = await _classroomService.GetClassroomsForInstructorAsync(userId);
+				return View("Index_Instructor", classrooms);
+			}
+			else if (userRoles.Contains("Student"))
+			{
+				classrooms = await _classroomService.GetClassroomsForStudentAsync(userId);
+				return View("Index_Student", classrooms);
 			}
 
-			var classroom = await _db.Classrooms
-				.Include(c => c.Course)
-				.Include(c => c.Instructor)
-				.FirstOrDefaultAsync(m => m.Id == id);
-			if (classroom == null)
-			{
-				return NotFound();
-			}
-
-			return View(classroom);
+			return Unauthorized();
 		}
 
-		// GET: Classroom/Create
+
+		[HttpGet]
+		[Authorize(Roles = "Staff")]
 		public async Task<IActionResult> Create(int courseId)
 		{
-			var course = await _db.Courses.Include(c => c.Enrollments)
-										  .ThenInclude(e => e.Student)
-										  .FirstOrDefaultAsync(c => c.Id == courseId);
+			var instructors = await _classroomService.GetInstructorsAsync();
+			var students = await _classroomService.GetEligibleStudentsAsync(courseId);
 
-			if (course == null)
-			{
-				return NotFound();
-			}
-
-			var instructors = await _userManager.GetUsersInRoleAsync("Instructor");
-
-			var model = new ClassroomCreateVM
+			var viewModel = new ClassroomCreateViewModel
 			{
 				CourseId = courseId,
-				Course = course,
-				Students = course.Enrollments
-								 .OrderBy(e => e.EnrollmentDate)
-								 .Select(e => new StudentSelectionVM
-								 {
-									 StudentId = e.Student.Id,
-									 FullName = e.Student.FullName,
-									 Email = e.Student.Email,
-									 Selected = true
-								 }).ToList(),
-				Instructors = instructors.Select(i => new SelectListItem
-				{
-					Value = i.Id,
-					Text = i.FullName
-				}).ToList()
+				Instructors = instructors,
+				Students = students
 			};
 
-			return View(model);
+			return View(viewModel);
 		}
 
-		// POST: Classroom/Create
-		// To protect from overposting attacks, enable the specific properties you want to bind to.
-		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
-		//[Authorize(Roles = "Staff")]
-
-		public async Task<IActionResult> Create(ClassroomCreateVM model)
+		[Authorize(Roles = "Staff")]
+		public async Task<IActionResult> Create(ClassroomCreateViewModel model)
 		{
-			if (!ModelState.IsValid)
-			{
-				return View(model);
-			}
-
-			var course = await _db.Courses.FindAsync(model.CourseId);
-			if (course == null) return NotFound();
-
-			var selectedStudents = model.Students.Where(s => s.Selected).ToList();
-			if (!selectedStudents.Any())
-			{
-				TempData["Error"] = "Bạn cần chọn ít nhất một học viên!";
-				return RedirectToAction("Create", new { courseId = model.Course.Id });
-			}
+			if (!ModelState.IsValid) return View(model);
 
 			var classroom = new Classroom
 			{
 				Name = model.Name,
+				Information = model.Information,
 				CourseId = model.CourseId,
 				InstructorId = model.InstructorId
 			};
 
-			_db.Classrooms.Add(classroom);
-			await _db.SaveChangesAsync();
+			var result = await _classroomService.CreateClassroomAsync(classroom, model.SelectedStudentIds);
 
-			foreach (var student in selectedStudents)
+			if (!result)
 			{
-				var user = await _db.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(u => u.Id == student.StudentId);
-				if (user != null)
-				{
-					classroom.Students.Add(user);
-				}
+				ModelState.AddModelError("", "Không đủ số lượng sinh viên để mở lớp.");
+				return View(model);
 			}
 
-			await _db.SaveChangesAsync();
-
-			//var enrollmentsToRemove = _db.Enrollments
-			//							 .Where(e => e.CourseId == model.CourseId && selectedStudents.Any(s => s.StudentId == e.StudentId));
-
-			//_db.Enrollments.RemoveRange(enrollmentsToRemove);
-			//await _db.SaveChangesAsync();
-
-			TempData["Success"] = "Lớp học đã được tạo thành công!";
 			return RedirectToAction("Index");
 		}
 
-
-
-		// GET: Classroom/Edit/5
-		public async Task<IActionResult> Edit(int? id)
+		//public async Task<IActionResult> Details(int id)
+		//{
+		//	var classroom = await _classroomService.GetClassroomDetailAsync(id);
+		//	if (classroom == null)
+		//	{
+		//		return NotFound();
+		//	}
+		//	return View(classroom);
+		//}
+		public async Task<IActionResult> Details(int id)
 		{
-			if (id == null)
-			{
-				return NotFound();
-			}
+			var classroom = await _classroomService.GetClassroomDetailAsync(id);
+			if (classroom == null) return NotFound();
 
-			var classroom = await _db.Classrooms.FindAsync(id);
-			if (classroom == null)
+			var assignments = await _assignmentService.GetAssignmentsAsync(id);
+			var viewModel = new ClassroomDetailsViewModel
 			{
-				return NotFound();
-			}
-			ViewData["CourseId"] = new SelectList(_db.Courses, "Id", "ImageUrl", classroom.CourseId);
-			ViewData["InstructorId"] = new SelectList(_db.ApplicationUser, "Id", "Id", classroom.InstructorId);
-			return View(classroom);
+				Classroom = classroom,
+				Assignments = assignments
+			};
+			return View(viewModel);
 		}
 
-		// POST: Classroom/Edit/5
-		// To protect from overposting attacks, enable the specific properties you want to bind to.
-		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CourseId,InstructorId,CreatedDate")] Classroom classroom)
+		[Authorize(Roles = "Instructor")]
+		public async Task<IActionResult> CreateAssignment(int classroomId, Assignment assignment, IFormFile? file)
 		{
-			if (id != classroom.Id)
-			{
-				return NotFound();
-			}
+			assignment.ClassroomId = classroomId;
 
-			if (ModelState.IsValid)
-			{
-				try
-				{
-					_db.Update(classroom);
-					await _db.SaveChangesAsync();
-				}
-				catch (DbUpdateConcurrencyException)
-				{
-					if (!ClassroomExists(classroom.Id))
-					{
-						return NotFound();
-					}
-					else
-					{
-						throw;
-					}
-				}
-				return RedirectToAction(nameof(Index));
-			}
-			ViewData["CourseId"] = new SelectList(_db.Courses, "Id", "ImageUrl", classroom.CourseId);
-			ViewData["InstructorId"] = new SelectList(_db.ApplicationUser, "Id", "Id", classroom.InstructorId);
-			return View(classroom);
+			if (!ModelState.IsValid) return RedirectToAction("Details", new { id = classroomId });
+
+			await _assignmentService.CreateAssignmentAsync(assignment, file);
+			return RedirectToAction("Details", new { id = classroomId });
 		}
 
-		// GET: Classroom/Delete/5
-		public async Task<IActionResult> Delete(int? id)
+		[HttpPost]
+		[Authorize(Roles = "Instructor")]
+
+		public async Task<IActionResult> UpdateAssignment(int classroomId, Assignment assignment, IFormFile? file)
 		{
-			if (id == null)
-			{
-				return NotFound();
-			}
 
-			var classroom = await _db.Classrooms
-				.Include(c => c.Course)
-				.Include(c => c.Instructor)
-				.FirstOrDefaultAsync(m => m.Id == id);
-			if (classroom == null)
-			{
-				return NotFound();
-			}
-
-			return View(classroom);
+			await _assignmentService.UpdateAssignmentAsync(assignment, file);
+			return RedirectToAction("Details", new { id = classroomId });
 		}
 
-		// POST: Classroom/Delete/5
-		[HttpPost, ActionName("Delete")]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DeleteConfirmed(int id)
-		{
-			var classroom = await _db.Classrooms.FindAsync(id);
-			if (classroom != null)
-			{
-				_db.Classrooms.Remove(classroom);
-			}
+		[HttpPost]
+		[Authorize(Roles = "Instructor")]
 
-			await _db.SaveChangesAsync();
-			return RedirectToAction(nameof(Index));
+		public async Task<IActionResult> DeleteAssignment(int classroomId, int assignmentId)
+		{
+			await _assignmentService.DeleteAssignmentAsync(assignmentId);
+			return RedirectToAction("Details", new { id = classroomId });
+		}
+		public async Task<IActionResult> GetAssignment(int id)
+		{
+			var assignment = await _assignmentService.GetAssignmentAsync(id);
+			if (assignment == null) return NotFound();
+
+			return PartialView("_ViewAssignmentModal", assignment);
 		}
 
-		private bool ClassroomExists(int id)
-		{
-			return _db.Classrooms.Any(e => e.Id == id);
-		}
 	}
 }

@@ -37,23 +37,27 @@ namespace ClassRoom.Web.Controllers
 
 			}
 
-			List<SelectListItem> listItems = new();
-			listItems.Add(new SelectListItem()
-			{
-				Value = SD.Instructor,
-				Text = SD.Instructor
-			});
-			listItems.Add(new SelectListItem()
-			{
-				Value = SD.Student,
-				Text = SD.Student
-			});
+			//List<SelectListItem> listItems = new();
+			//listItems.Add(new SelectListItem()
+			//{
+			//	Value = SD.Instructor,
+			//	Text = SD.Instructor
+			//});
+			//listItems.Add(new SelectListItem()
+			//{
+			//	Value = SD.Student,
+			//	Text = SD.Student
+			//});
 
 			ViewData["ReturnUrl"] = returnurl;
 
 			RegisterVM registerVM = new()
 			{
-				RoleList = listItems
+				RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+				{
+					Text = i,
+					Value = i
+				})
 			};
 
 			return View(registerVM);
@@ -85,6 +89,14 @@ namespace ClassRoom.Web.Controllers
 					{
 						await _userManager.AddToRoleAsync(user, SD.Instructor);
 					}
+					else if (registerVM.RoleSelected == SD.Staff)
+					{
+						await _userManager.AddToRoleAsync(user, SD.Staff);
+					}
+					else if (registerVM.RoleSelected == SD.Admin)
+					{
+						await _userManager.AddToRoleAsync(user, SD.Admin);
+					}
 					else
 					{
 						await _userManager.AddToRoleAsync(user, SD.Student);
@@ -98,18 +110,22 @@ namespace ClassRoom.Web.Controllers
 					ModelState.AddModelError(string.Empty, error.Description);
 				}
 			}
-			List<SelectListItem> listItems = new();
-			listItems.Add(new SelectListItem()
+			//List<SelectListItem> listItems = new();
+			//listItems.Add(new SelectListItem()
+			//{
+			//	Value = SD.Instructor,
+			//	Text = SD.Instructor
+			//});
+			//listItems.Add(new SelectListItem()
+			//{
+			//	Value = SD.Student,
+			//	Text = SD.Student
+			//});
+			registerVM.RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
 			{
-				Value = SD.Instructor,
-				Text = SD.Instructor
+				Text = i,
+				Value = i
 			});
-			listItems.Add(new SelectListItem()
-			{
-				Value = SD.Student,
-				Text = SD.Student
-			});
-			registerVM.RoleList = listItems;
 			return View(registerVM);
 		}
 

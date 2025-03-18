@@ -23,6 +23,9 @@ public class Classroom
 
 	public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-	public List<ApplicationUser> Students { get; set; } = new();
+	// Danh sách student tham gia lớp thông qua bảng trung gian
+	public List<ClassroomStudent>? ClassroomStudents { get; set; } = new();
+	public List<Post>? Posts { get; set; } = new();
+	public List<Assignment>? Assignments { get; set; } = new();
 }
 

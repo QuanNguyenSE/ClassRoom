@@ -1,0 +1,47 @@
+﻿@model List<Classroom>
+
+<h2 class="mb-4">Quản Lý Lớp Học</h2>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Tên Lớp</th>
+            <th>Khóa Học</th>
+            <th>Giảng Viên</th>
+            <th>Số Sinh Viên</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var classroom in Model)
+        {
+            <tr>
+                <td>@classroom.Id</td>
+                <td>@classroom.Name</td>
+                <td>@classroom.Course.Title</td>
+                <td>@classroom.Instructor.FullName</td>
+                <td>@classroom.ClassroomStudents.Count</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Classroom", new { id = classroom.Id })" class="btn btn-warning btn-sm">
+                        ✏️ Sửa
+                    </a>
+                    <a href="@Url.Action("Delete", "Classroom", new { id = classroom.Id })" class="btn btn-danger btn-sm">
+                        ❌ Xóa
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .btn {
+        margin-right: 5px;
+    }
+</style>

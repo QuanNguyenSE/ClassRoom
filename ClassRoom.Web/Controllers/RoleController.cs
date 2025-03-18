@@ -1,10 +1,12 @@
 ﻿using ClassRoom.Models;
 using ClassRoom.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClassRoom.Web.Controllers
 {
+	[Authorize(Roles = "Admin")]
 	public class RoleController : Controller
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;

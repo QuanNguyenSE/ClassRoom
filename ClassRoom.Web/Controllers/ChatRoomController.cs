@@ -1,10 +1,12 @@
 ﻿using ClassRoom.DataAccess.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClassRoom.Web.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize]
 	public class ChatRoomController : ControllerBase
 	{
 		private readonly ApplicationDbContext _db;

@@ -110,8 +110,8 @@
                                 <a class="nav-item nav-link" asp-area="" asp-controller="Course" asp-action="Index">Course</a>
                                 <a class="nav-item nav-link" asp-area="" asp-controller="Classroom" asp-action="Index">Classroom</a>
 
-                                @* @if (User.IsInRole("Admin")) *@
-                                @* { *@
+                                @if (User.IsInRole("Admin"))
+                                {
                                     <div class="nav-item dropdown">
                                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Manage</a>
                                         <div class="dropdown-menu rounded-0 m-0">
@@ -119,7 +119,7 @@
                                             <a class="dropdown-item" asp-controller="User" asp-action="Index">Users</a>
                                         </div>
                                     </div>
-                                @* } *@
+                                }
                             </div>
                             <partial name="_LoginPartial" />
                         </div>

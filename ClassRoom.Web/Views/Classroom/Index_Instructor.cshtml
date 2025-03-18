@@ -1,0 +1,33 @@
+﻿@model List<Classroom>
+
+<h2 class="mb-4">Lớp Học Của Tôi</h2>
+
+<div class="row">
+    @foreach (var classroom in Model)
+    {
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@classroom.Name</h5>
+                    <p class="card-text">
+                        <strong>Khóa học:</strong> @classroom.Course.Title <br>
+                        <strong>Ngày tạo:</strong> @classroom.CreatedDate.ToShortDateString()
+                    </p>
+                    <a href="@Url.Action("Details", "Classroom", new { id = classroom.Id })" class="btn btn-primary btn-sm">
+                        Xem Chi Tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: scale(1.05);
+    }
+</style>

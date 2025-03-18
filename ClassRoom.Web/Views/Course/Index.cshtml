@@ -41,9 +41,9 @@
                 <td>@course.Enrollments.Count(e => e.IsActive == true) / @course.MinStudentToOpenClass</td>
                 <td>@course.Enrollments.Count(e => e.IsActive == false)</td>
                 <td>
-                    @if (course.Enrollments.Count(e => e.IsActive == true) == course.MinStudentToOpenClass)
+                    @if (course.Enrollments.Count(e => e.IsActive == true) >= course.MinStudentToOpenClass)
                     {
-                        <a asp-controller="Classroom" asp-action="Create" asp-route-Id="@course.Id" class="btn btn-success btn-sm">
+                        <a asp-controller="Classroom" asp-action="Create" asp-route-courseId="@course.Id" class="btn btn-success btn-sm">
                             <span class="badge">Possible</span>
                         </a>
                     }

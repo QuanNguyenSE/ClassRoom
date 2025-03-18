@@ -1,45 +1,42 @@
-﻿@model ClassroomCreateVM
+﻿@model ClassroomCreateViewModel
 
-<h2>Tạo Lớp Học Cho Khóa: @Model.Course.Title</h2>
+<h2>Tạo Lớp Học</h2>
 
 <form asp-action="Create" method="post">
-    <input type="hidden" name="CourseId" value="@Model.Course.Id" />
+    <input type="hidden" asp-for="CourseId" />
 
-    <div class="mb-3">
-        <label class="form-label">Tên Lớp</label>
-        <input type="text" class="form-control" asp-for="Name" required />
+    <div class="form-group">
+        <label asp-for="Name">Tên Lớp</label>
+        <input asp-for="Name" class="form-control" required />
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Chọn Giảng Viên</label>
-        <select class="form-select" asp-for="InstructorId" asp-items="Model.Instructors" required>
-            <option value="">-- Chọn giảng viên --</option>
+    <div class="form-group">
+        <label asp-for="Information">Thông Tin</label>
+        <textarea asp-for="Information" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="InstructorId">Giảng viên</label>
+        <select asp-for="InstructorId" class="form-control" required>
+            @foreach (var instructor in Model.Instructors)
+            {
+                <option value="@instructor.Id">@instructor.FullName</option>
+            }
         </select>
     </div>
 
-    <h4>Danh Sách Học Viên Đã Đăng Ký</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Tên</th>
-                <th>Email</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (var i = 0; i < Model.Students.Count; i++)
+    <div class="form-group">
+        <label>Chọn Sinh Viên</label>
+        <div class="form-check">
+            @foreach (var student in Model.Students)
             {
-                <tr>
-                    <td>
-                        <input type="checkbox" asp-for="Students[i].Selected" />
-                        <input type="hidden" asp-for="Students[i].StudentId" />
-                    </td>
-                    <td>@Model.Students[i].FullName</td>
-                    <td>@Model.Students[i].Email</td>
-                </tr>
+                <input type="checkbox" name="SelectedStudentIds" value="@student.Id" checked class="form-check-input">
+                <label class="form-check-label">@student.FullName</label>
+
+                <br>
             }
-        </tbody>
-    </table>
+        </div>
+    </div>
 
     <button type="submit" class="btn btn-primary">Tạo Lớp</button>
 </form>

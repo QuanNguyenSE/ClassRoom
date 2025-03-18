@@ -1,0 +1,54 @@
+﻿@* @model SubmissionDetailViewModel *@
+
+@* <h2>Grade Submission</h2> *@
+
+@* <form asp-action="GradeSubmission" method="post"> *@
+@*     <input type="hidden" asp-for="SubmissionId" /> *@
+
+
+
+@*     <div class="form-group"> *@
+@*         <label asp-for="Grade">Grade</label> *@
+@*         <input asp-for="Grade" class="form-control" type="number" step="0.1" /> *@
+@*         <span asp-validation-for="Grade" class="text-danger"></span> *@
+@*     </div> *@
+
+@*     <button type="submit" class="btn btn-success">Submit Grade</button> *@
+@* </form> *@
+
+
+@model SubmissionDetailViewModel
+
+<h2>Grade Submission</h2>
+
+<div class="card">
+    <div class="card-header">
+        <h4>Assignment: @Model.AssignmentTitle</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Student:</strong> @Model.StudentName</p>
+        <p><strong>Submitted At:</strong> @Model.SubmittedAt.ToString("yyyy-MM-dd HH:mm")</p>
+        
+        <h5>Student's Answer:</h5>
+        <p>@(string.IsNullOrEmpty(Model.Answer) ? "No answer provided" : Model.Answer)</p>
+
+        @if (!string.IsNullOrEmpty(Model.FilePath))
+        {
+            <p><strong>Attached File:</strong> 
+                <a href="~/docs/@Model.FilePath" class="btn btn-info" target="_blank">Download</a>
+            </p>
+        }
+
+        <form asp-action="GradeSubmission" method="post">
+            <input type="hidden" asp-for="SubmissionId" />
+            <input type="hidden" asp-for="AssignmentId" />
+            <div class="form-group">
+                <label for="Grade">Grade:</label>
+                <input type="number" step="0.1" min="0" max="10" class="form-control" asp-for="Grade" required />
+            </div>
+
+            <button type="submit" class="btn btn-success mt-3">Save Grade</button>
+            <a asp-action="Index" class="btn btn-secondary mt-3">Back to Submissions</a>
+        </form>
+    </div>
+</div>

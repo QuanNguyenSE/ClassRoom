@@ -1,0 +1,29 @@
+﻿@model List<SubmissionUpdateViewModel>
+
+<h2>Submissions</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Submitted At</th>
+            <th>Grade</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var submission in Model)
+        {
+            <tr>
+                <td>@submission.StudentName</td>
+                <td>@submission.SubmittedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(submission.Grade.HasValue ? submission.Grade : "Not Graded")</td>
+                <td>
+                    <a asp-action="GradeSubmission" asp-route-submissionId="@submission.SubmissionId" class="btn btn-primary">
+                        Grade
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

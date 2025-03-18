@@ -1,42 +1,207 @@
-﻿@model ClassRoom.Models.Classroom
+﻿@using System.Security.Claims
+@model ClassroomDetailsViewModel
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="container mt-4">
+    <h2>🏫 @Model.Classroom.Name</h2>
+    <p>@Model.Classroom.Information</p>
 
-<h1>Details</h1>
+    <h3>Students</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model.Classroom.Student)
+            {
+                <tr>
+                    <td>@student.Name</td>
+                    <td>@student.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<div>
-    <h4>Classroom</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Course)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Course.ImageUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Instructor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Instructor.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-    </dl>
+
+    <h3>📚 Assignments</h3>
+
+    @if (User.IsInRole("Instructor"))
+    {
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addAssignmentModal">➕ Add Assignment</button>
+    }
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>File</th>
+
+                <th>Actions</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Assignments)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Description</td>
+                    <td>@item.DueDate.ToShortDateString()</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.FilePath))
+                        {
+                            <a href="@item.FilePath" target="_blank">📄 View</a>
+                        }
+                        else
+                        {
+                            <span>No File</span>
+                        }
+                    </td>
+                    @if (User.IsInRole("Instructor"))
+                    {
+                        <td>
+                            <button class="btn btn-primary btn-edit-assignment"
+                                    data-id="@item.Id"
+                                    data-classroomid="@item.ClassroomId"
+                                    data-title="@item.Title"
+                                    data-description="@item.Description"
+                                    data-duedate="@item.DueDate.ToString("yyyy-MM-dd")">
+                                Edit
+                            </button>
+                            <form method="post" action="@Url.Action("DeleteAssignment", new { classroomId = Model.Classroom.Id, assignmentId = item.Id })" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">🗑 Delete</button>
+                            </form>
+
+                            <button class="btn btn-info btn-sm" onclick="viewAssignment(@item.Id)">View</button>
+                            <a asp-action="Index" asp-controller="Submission" asp-route-assignmentId="@item.Id" class="btn btn-info">
+                                View Submissions
+                            </a>
+                        </td>
+                    }
+                    else if (User.IsInRole("Student"))
+                    {
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewAssignment(@item.Id)">View</button>
+                            <a asp-controller="Submission" asp-action="Submit" asp-route-assignmentId="@item.Id" class="btn btn-success btn-sm">Submit</a>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<!-- Modal Thêm Assignment -->
+<div class="modal fade" id="addAssignmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Assignment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" action="@Url.Action("CreateAssignment", new { classroomId = Model.Classroom.Id })">
+                <div class="modal-body">
+                    <input type="hidden" name="CreatedById" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+                    <input type="hidden" name="CreatedBy" value="@User.Identity.Name" />
+
+                    <div class="mb-3">
+                        <label>Title</label>
+                        <input type="text" name="Title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Description</label>
+                        <textarea name="Description" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label>Due Date</label>
+                        <input type="date" name="DueDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Upload File</label>
+                        <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<!-- Modal Edit Assignment -->
+<div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Assignment</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editAssignmentForm" method="post" action="/Classroom/UpdateAssignment" enctype="multipart/form-data">
+                    <input type="hidden" id="editAssignmentId" name="Id">
+                    <input type="hidden" id="editAssignmentClassroomId" name="classroomId">
+
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" id="editAssignmentTitle" name="Title" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="editAssignmentDescription" name="Description" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="editAssignmentDueDate" name="DueDate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Attachment</label>
+                        <input type="file" class="form-control" id="editAssignmentFile" name="file">
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".btn-edit-assignment").click(function () {
+            var assignmentId = $(this).data("id");
+            var classroomId = $(this).data("classroomid");
+            var title = $(this).data("title");
+            var description = $(this).data("description");
+            var dueDate = $(this).data("duedate");
+
+            $("#editAssignmentId").val(assignmentId);
+            $("#editAssignmentClassroomId").val(classroomId);
+            $("#editAssignmentTitle").val(title);
+            $("#editAssignmentDescription").val(description);
+            $("#editAssignmentDueDate").val(dueDate);
+
+            $("#editAssignmentModal").modal("show");
+        });
+    });
+</script>
+
+<script>
+    function viewAssignment(id) {
+        $.get('/Classroom/GetAssignment/' + id, function (data) {
+            $('#viewAssignmentModal').remove();
+            $('body').append(data);
+            $('#viewAssignmentModal').modal('show');
+        });
+    }
+</script>
